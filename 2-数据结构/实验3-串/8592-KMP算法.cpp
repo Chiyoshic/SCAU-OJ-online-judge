@@ -73,3 +73,31 @@ int main()
     }
     return 0;
 }
+
+/* STL VERSION
+#include <iostream>
+#include <algorithm>
+ 
+using namespace std;
+typedef long long i64;
+ 
+void solve()
+{
+    string a;
+    string b;
+    cin>>a>>b;
+    int ans=a.find(b);
+    printf("%d\n",ans+1);
+}
+ 
+int main()
+{
+    int T=1;
+    scanf("%d",&T);
+    while(T--)
+    {
+        solve();
+    }
+    return 0;
+}
+*/

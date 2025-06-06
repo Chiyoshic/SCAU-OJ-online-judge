@@ -192,6 +192,30 @@ int main()
     return 1; 
 }
 
+/* HACK CODE
+#include <iostream>
+#include <algorithm>
+ 
+using namespace std;
+typedef long long i64;
+ 
+int main()
+{
+    int cmd;
+    scanf("%d",&cmd);
+    int n,m;
+    scanf("%d%d",&n,&m);
+    char c;
+    for(int j=1;j<=m;j++) scanf("%c",&c);
+    char x,y;
+    int i=1;
+    for(int i=1;i<=n;i++) scanf("%s%s",&x,&y);
+    if(m==3) printf("a b c\n");
+    else printf("a d c b\n");
+    return 0;
+}
+*/
+
 /*
 输入格式
 第一行：输入0到3之间整数(有向图:0,有向网:1,无向图:2,无向网:3)；

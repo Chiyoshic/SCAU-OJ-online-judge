@@ -1,105 +1,68 @@
 #include <iostream>
 #include <vector>
+#include <cstdio>
 using namespace std;
 
-/*
- * N皇后问题 - 回溯算法解决方案
- * 算法思想：
- * 1. 逐行放置皇后，避免行冲突
- * 2. 使用三个数组记录列和两个对角线的占用情况
- * 3. 递归尝试所有可能的放置位置
- * 4. 当放置完所有行时，计数有效解
- *
- * 记忆方法：
- * 1. 列冲突：直接检查列数组
- * 2. 对角线冲突：主对角线(row+col)相同，副对角线(row-col)相同
- * 3. 副对角线索引需要加上n-1避免负数
- */
+// 定义绝对值宏
+#define ABS(a) ((a)>=0?(a):-(a))
 
-/*
- * 递归解决N皇后问题的核心函数
- * 参数说明：
- *   n: 棋盘大小
- *   row: 当前处理的行
- *   col: 列占用标记数组，col[i]=1表示第i列已被占用
- *   diag1: 主对角线占用标记数组，diag1[row+i]=1表示该对角线已被占用
- *   diag2: 副对角线占用标记数组，diag2[row-i+n-1]=1表示该对角线已被占用
- *   count: 引用传递的解计数器
+/**
+ * 递归函数，计算N皇后问题的解的数量
+ * @param n 棋盘大小(n×n)和皇后数量
+ * @param cur 当前正在放置的行号(从0开始)
+ * @param A 数组，记录每行皇后的列位置(A[i]表示第i行皇后所在的列)
+ * @return 返回从当前状态开始的解的数目
  */
-void solveNQueens(int n, int row, vector<int>& col, vector<int>& diag1, vector<int>& diag2, int& count) {
-    // 递归终止条件：所有行都已处理完毕
-    if (row == n) {
-        count++;  // 找到一个有效解
-        return;
-    }
-    
-    // 尝试在当前行的每一列放置皇后
-    for (int i = 0; i < n; i++) {
-        // 检查当前位置是否安全（无列冲突、无对角线冲突）
-        // 检查当前位置是否安全（无列冲突、无对角线冲突）
-        // diag1[row+i]检查主对角线冲突（row+col相同的点在同一主对角线）
-        // diag2[row-i+n-1]检查副对角线冲突（row-col相同的点在同一副对角线）
-        if (col[i] || diag1[row + i] || diag2[row - i + n - 1]) continue;
+int F(int n, int cur, int* A)
+{
+    // 基本情况：已经成功放置了所有n个皇后
+    if(cur == n)
+        return 1;  // 找到一个有效解，返回1
+    else
+    {
+        int ret = 0;  // 用于累计当前行的所有可能解
         
-        // 放置皇后，标记相关列和对角线
-        col[i] = diag1[row + i] = diag2[row - i + n - 1] = 1;
-        
-        // 递归处理下一行
-        solveNQueens(n, row + 1, col, diag1, diag2, count);
-        
-        // 回溯：移除皇后，恢复标记
-        col[i] = diag1[row + i] = diag2[row - i + n - 1] = 0;
+        // 尝试在当前行的每一列放置皇后
+        for(int i = 0; i < n; i++)
+        {
+            int ok = 1;  // 标记当前位置是否可行
+            
+            // 检查与之前放置的所有皇后是否冲突
+            for(int j = 0; j < cur; j++)
+            {
+                // 冲突条件1：同一列有皇后
+                // 冲突条件2：在对角线上有皇后(行差绝对值等于列差绝对值)
+                if(A[j] == i || ABS(cur - j) == ABS(A[j] - i))
+                {
+                    ok = 0;  // 发现冲突
+                    break;   // 不需要继续检查其他皇后
+                }
+            }
+            
+            // 如果当前位置没有冲突
+            if(ok)
+            {
+                A[cur] = i;  // 记录当前行皇后的位置
+                // 递归处理下一行，并将返回的解数累加到ret中
+                ret += F(n, cur + 1, A);
+            }
+        }
+        return ret;  // 返回当前状态下的所有可能解数
     }
 }
 
-/*
- * 计算N皇后问题的解的总数
- * 参数说明：
- *   n: 棋盘大小
- * 返回值：
- *   所有有效解的数量
- *
- * 实现步骤：
- * 1. 初始化标记数组
- * 2. 调用递归求解函数
- * 3. 返回解的数量
- */
-int totalNQueens(int n) {
-    int count = 0;  // 解计数器
-    vector<int> col(n, 0);  // 列标记数组
-    vector<int> diag1(2 * n - 1, 0);  // 主对角线标记数组，索引计算为row+i
-    vector<int> diag2(2 * n - 1, 0);  // 副对角线标记数组，索引计算为row-i+n-1
-    /* 对角线索引说明：
-     * 1. 主对角线(row+i): 同一主对角线上所有点的row+col值相同
-     * 2. 副对角线(row-i+n-1): 同一副对角线上所有点的row-col值相同
-     *    - 添加n-1是为了避免负数索引
-     *    - 例如：在4x4棋盘上，row-i的范围是-3到3，加上3后变为0到6
-     */
+int main()
+{
+    int T, n, A[30];  // T:测试用例数, n:棋盘大小, A:存储皇后位置
     
-    // 从第0行开始递归求解
-    solveNQueens(n, 0, col, diag1, diag2, count);
+    cin >> T;  // 读取测试用例数量
     
-    return count;
-}
-
-/*
- * 主函数
- * 处理输入输出
- * 输入格式：
- *   第一行：测试用例数量T
- *   接下来T行：每个测试用例的N值
- * 输出格式：
- *   每个测试用例输出一行解的数量
- */
-int main() {
-    int T;  // 测试用例数量
-    cin >> T;
-    
-    // 处理每个测试用例
-    while (T--) {
-        int N;  // 棋盘大小
-        cin >> N;
-        cout << totalNQueens(N) << endl;  // 输出解的数量
+    while(T--)
+    {
+        cin >> n;  // 读取棋盘大小
+        // 调用F函数计算解的数量并输出
+        // 参数说明：n是棋盘大小，0表示从第0行开始放置，A是位置记录数组
+        cout << F(n, 0, A) << endl;
     }
     
     return 0;

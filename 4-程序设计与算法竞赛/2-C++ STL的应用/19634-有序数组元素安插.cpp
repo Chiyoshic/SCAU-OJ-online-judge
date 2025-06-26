@@ -1,83 +1,57 @@
 #include <iostream>
 #include <vector>
-// 移除不必要的algorithm头文件，因为代码中没有使用STL算法
+#include <algorithm>
 
-using namespace std;
-
-// 二分查找函数，返回目标值应插入的位置
-// 参数：v-有序数组，left-左边界，right-右边界，tar-目标值
-/**
- * 二分查找函数，返回目标值应插入的位置以保持数组有序
- * @param v 有序整数数组的引用
- * @param left 查找区间的左边界
- * @param right 查找区间的右边界
- * @param tar 要查找的目标值
- * @return 目标值应插入的位置索引
+/*
+ * 计算中位数的函数
+ * 记忆要点：
+ * 1. 奇数长度：直接取中间元素 (n/2 索引)
+ * 2. 偶数长度：取中间两个元素的平均值 ((nums[n/2-1] + nums[n/2])/2.0)
+ * 注意：除以2.0确保结果是浮点数
  */
-int BinarySearch(vector<int> &v, int left, int right, int tar){
-    // 递归终止条件：当查找区间缩小到只有一个元素时
-    if (left >= right) {
-        // 比较目标值与当前元素大小，决定插入位置
-        return (tar > v[left]) ? left + 1 : left;
+double findMedian(const std::vector<int>& nums) {
+    int n = nums.size();
+    if (n % 2 == 1) {
+        return nums[n / 2];  // 奇数长度，直接返回中间元素
+    } else {
+        return (nums[n / 2 - 1] + nums[n / 2]) / 2.0;  // 偶数长度，返回中间两数平均值
     }
-    // 计算中间位置
-    int mid = (left+right)/2;
-    
-    // 目标值大于中间值，在右半区间继续查找
-    if(tar > v[mid]) return BinarySearch(v, mid+1, right, tar);
-    
-    // 目标值小于中间值，在左半区间继续查找
-    if(tar < v[mid]) return BinarySearch(v, left, mid, tar);
-    
-    // 目标值等于中间值，继续在左半区间查找以保持稳定性
-    return BinarySearch(v, left, mid, tar);
 }
 
 int main() {
-    // 初始化有序数组
-    vector<int> v;  // 存储有序整数序列
-    int n;          // 用于存储输入的数量
-    // 移除重复的vector和n声明
-    // 读取初始有序数组
-    cin >> n;
-    while(n--) {
-        int t;  // 临时存储输入的数字
-        cin >> t;
-        v.push_back(t);  // 将数字添加到数组末尾
-    }
-
-    // 读取要插入的数字数量
-    cin >> n;
-    while(n--) {
-        int t;  // 临时存储要插入的数字
-        cin >> t;
-        
-        // 使用二分查找确定插入位置
-        int pos = BinarySearch(v, 0, v.size()-1, t);
-        
-        // 在正确位置插入数字，保持数组有序
-        v.insert(v.begin()+pos, t);
-        // 计算并输出当前中位数
-        int size = v.size();
-        
-        // 数组长度为奇数时，中位数是中间元素
-        if(size % 2 != 0) {
-            cout << v[size/2] << endl;
-        }
-        // 数组长度为偶数时，中位数是中间两个数的平均值
-        else {
-            double median = (v[size / 2 - 1] + v[size / 2]) / 2.0;
-            
-            // 如果中位数是整数，输出整数形式；否则保留小数
-            if (median == (int)median) {
-                cout << (int)median << endl;
-            } else {
-                cout << median << endl;
-            }
-        }
-    }
-
+    // 第一阶段：读取初始有序序列
+    int n;  // 初始序列长度
+    std::cin >> n;
     
+    std::vector<int> sequence(n);  // 创建存储序列的vector
+    for (int i = 0; i < n; ++i) {
+        std::cin >> sequence[i];  // 读取初始有序序列
+    }
+    
+    // 第二阶段：处理插入操作
+    int m;  // 插入操作次数
+    std::cin >> m;
+    
+    for (int i = 0; i < m; ++i) {
+        int num;  // 要插入的数字
+        std::cin >> num;
+        
+        /*
+         * 使用lower_bound找到合适的插入位置：
+         * 1. lower_bound返回第一个不小于num的元素位置
+         * 2. 这保证了插入后序列仍然有序
+         * 记忆要点：
+         * - lower_bound使用二分查找，时间复杂度O(log n)
+         * - 它适用于有序序列
+         */
+        auto it = std::lower_bound(sequence.begin(), sequence.end(), num);
+        sequence.insert(it, num);  // 在找到的位置插入新元素
+        
+        // 计算并输出当前中位数
+        double median = findMedian(sequence);
+        std::cout << median << std::endl;
+    }
+
     return 0;
 }
 

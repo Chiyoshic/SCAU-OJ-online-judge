@@ -18,12 +18,22 @@ long long simplify(long long &a, long long &b) {
     b = b / g;
 }
 
+long long pow10(long long n) {
+    long long res = 1;
+    for (int i = 0; i < n; i++) {
+        res *= 10;
+    }
+    return res;
+}
+
 int main() {
+    cin.tie(0);
+    std::ios::sync_with_stdio(false);
     string s;
     cin >> s;
     bool ifRound = false;
     long long n=0, r=0;
-    int na=0, ra=0;
+    long long na=0, ra=0;
     long long u=0, d=0;
 
     for(int i=2; i < s.size(); i++) {
@@ -35,11 +45,14 @@ int main() {
     }
 
     if(ifRound) {
-
+        u = (n * (pow10(ra) - 1)) + r;
+        d = (pow10(ra) - 1) * pow10(na);
     } else {
         u = n;
-        d = pow(10, na);
+        d = pow10(na);
     }
+
+    simplify(u, d);
 
     cout << u << " " << d;
 
